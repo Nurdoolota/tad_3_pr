@@ -1,0 +1,10 @@
+random_forest:
+  n_estimators: 50
+  max_depth: 10
+logistic_regression:
+  C: 0.5
+naive_bayes:
+  var_smoothing: 0.0000000009
+sample_size: 5000
+
+
