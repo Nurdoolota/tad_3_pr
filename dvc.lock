@@ -9,20 +9,20 @@ stages:
       size: 11110040
     - path: src/augment_data.py
       hash: md5
-      md5: 64af344117ad500e2021f77afec642aa
-      size: 2596
+      md5: cbdee661c9cd5c8494c0bfdd9d30f149
+      size: 2780
     outs:
     - path: data/augmented_only_train.csv
       hash: md5
-      md5: d60cfe6c959aed552b6bb701cb9fb74b
-      size: 60071449
+      md5: 2366d7f75b5c53f8a507b3eb82eaae76
+      size: 351225213
   sample_data:
     cmd: python src/sample_data.py data/combined_train.csv
     deps:
     - path: data/augmented_only_train.csv
       hash: md5
-      md5: d60cfe6c959aed552b6bb701cb9fb74b
-      size: 60071449
+      md5: 2366d7f75b5c53f8a507b3eb82eaae76
+      size: 351225213
     - path: data/raw/fashion-mnist_train.csv
       hash: md5
       md5: 976229da8a00a3ccf41b8009e4e48d77
@@ -37,5 +37,5 @@ stages:
     outs:
     - path: data/combined_train.csv
       hash: md5
-      md5: 4103f717274ae7a5f6efe12b2f4dc520
-      size: 76979279
+      md5: 9355224cb434af244abfc790347f8d75
+      size: 360674144
