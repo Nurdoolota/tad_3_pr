@@ -37,13 +37,13 @@ stages:
         naive_bayes:
           var_smoothing: 9e-10
         random_forest:
-          n_estimators: 100
+          n_estimators: 50
           max_depth: 10
     outs:
     - path: models
       hash: md5
-      md5: 824276d6a1060fd79683f05a1e366f48.dir
-      size: 7998343
+      md5: 7c28c64bb949866bbb101007eafe49da.dir
+      size: 4187943
       nfiles: 3
   evaluate_models:
     cmd: python src/evaluate_models.py metrics/eval.json
@@ -54,8 +54,8 @@ stages:
       size: 22176691
     - path: models
       hash: md5
-      md5: 824276d6a1060fd79683f05a1e366f48.dir
-      size: 7998343
+      md5: 7c28c64bb949866bbb101007eafe49da.dir
+      size: 4187943
       nfiles: 3
     - path: src/evaluate_models.py
       hash: md5
@@ -64,5 +64,5 @@ stages:
     outs:
     - path: metrics/eval.json
       hash: md5
-      md5: 4e0e396b64e3cffb1f7f1ca51c2ca050
-      size: 507
+      md5: 3b3709ca5176347863efb57bffac7f13
+      size: 497
