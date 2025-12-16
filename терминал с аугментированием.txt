@@ -1,0 +1,1178 @@
+Microsoft Windows [Version 10.0.19045.2965]
+(c) Microsoft Corporation. All rights reserved.
+
+D:\7\TAD\12>git branch
+* lr_changed
+  main
+  rf_changed
+
+D:\7\TAD\12>git checkout main
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+
+D:\7\TAD\12>git branch
+  lr_changed
+* main
+  rf_changed
+
+D:\7\TAD\12>git checkout -b aug_data
+Switched to a new branch 'aug_data'
+
+D:\7\TAD\12>git checkout main
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+
+D:\7\TAD\12>git branch -d aug_data
+Deleted branch aug_data (was e5c6ff9).
+
+D:\7\TAD\12>git checkout -b aug_data
+Switched to a new branch 'aug_data'
+
+D:\7\TAD\12>dvc stage add -n augment_data -d data/sampled_train.csv -d src/augment_data.py -o data/augmented_only_train.csv python src/augment_data.py data/augmented_only_train.csv
+Added stage 'augment_data' in 'dvc.yaml'
+
+To track the changes with git, run:
+
+        git add 'data\.gitignore' dvc.yaml
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+
+D:\7\TAD\12>dvc stage add -n train_models_aug -d data/augmented_only_train.csv -d src/train_models.py -p random_forest,logistic_regression,naive_bayes -o models_aug python src/train_models.py data/augmented_only_train.csv models_aug
+Added stage 'train_models_aug' in 'dvc.yaml'
+
+To track the changes with git, run:
+
+        git add dvc.yaml .gitignore
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+
+D:\7\TAD\12>dvc stage add -n evaluate_models_aug -d models_aug -d data/raw/fashion-mnist_test.csv -d src/evaluate_models.py -m metrics/eval_aug.json python src/evaluate_models.py metrics/eval_aug.json models_aug
+Added stage 'evaluate_models_aug' in 'dvc.yaml'
+
+To track the changes with git, run:
+
+        git add dvc.yaml 'metrics\.gitignore'
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "add aug pipline with stages"
+[aug_data 3efae4e] add aug pipline with stages
+ 8 files changed, 110 insertions(+), 7 deletions(-)
+ create mode 100644 src/augment_data.py
+ create mode 100644 "\321\202\320\265\321\200\320\274\320\270\320\275\320\260\320\273 \321\201 \320\277\321\203\320\275\320\272\321\202\320\260\320\274\320\270 1-2.txt"
+
+D:\7\TAD\12>dvc repro evaluate_models_aug
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+Verifying data sources in stage: 'params.yaml.dvc'
+
+Stage 'sample_data' didn't change, skipping
+Running stage 'augment_data':
+> python src/augment_data.py data/augmented_only_train.csv
+Augmented dataset (only copies, 5000 rows) saved to data/augmented_only_train.csv
+Updating lock file 'dvc.lock'
+
+Running stage 'train_models_aug':
+> python src/train_models.py data/augmented_only_train.csv models_aug
+Models trained and saved to models/
+ERROR: failed to reproduce 'train_models_aug': output 'models_aug' does not exist
+
+D:\7\TAD\12>dvc repro evaluate_models_aug
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Stage 'sample_data' didn't change, skipping
+Stage 'augment_data' didn't change, skipping
+Running stage 'train_models_aug':
+> python src/train_models.py data/augmented_only_train.csv models_aug
+Models trained and saved to models/
+ERROR: failed to reproduce 'train_models_aug': output 'models_aug' does not exist
+
+D:\7\TAD\12>dvc repro evaluate_models_aug
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Stage 'sample_data' didn't change, skipping
+Stage 'augment_data' didn't change, skipping
+Running stage 'train_models_aug':
+> python src/train_models.py data/augmented_only_train.csv models_aug
+Models trained and saved to models/
+ERROR: failed to reproduce 'train_models_aug': output 'models_aug' does not exist
+
+D:\7\TAD\12>dvc repro
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Stage 'sample_data' didn't change, skipping
+Running stage 'train_models':
+> python src/train_models.py data/sampled_train.csv
+usage: train_models.py [-h] input_path models_dir
+train_models.py: error: the following arguments are required: models_dir
+ERROR: failed to reproduce 'train_models': failed to run: python src/train_models.py data/sampled_train.csv, exited with 2
+
+D:\7\TAD\12>dvc repro
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Stage 'sample_data' didn't change, skipping
+Running stage 'train_models':
+> python src/train_models.py data/sampled_train.csv
+usage: train_models.py [-h] input_path models_dir
+train_models.py: error: the following arguments are required: models_dir
+ERROR: failed to reproduce 'train_models': failed to run: python src/train_models.py data/sampled_train.csv, exited with 2
+
+D:\7\TAD\12>dvc repro augment_data
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Stage 'sample_data' didn't change, skipping
+Stage 'augment_data' didn't change, skipping
+Data and pipelines are up to date.
+
+D:\7\TAD\12>dvc add data/augmented_train.csv
+Adding...
+ERROR: output 'data\augmented_train.csv' does not exist: [WinError 2] Не удается найти указанный файл: 'D:/7/TAD/12/data/augmented_train.csv'
+
+D:\7\TAD\12>dvc add data/augmented_only_train.csv
+ERROR: cannot update 'augmented_only_train.csv': overlaps with an output of stage: 'augment_data' in 'dvc.yaml'.
+Run the pipeline or use 'dvc commit' to force update it.
+
+D:\7\TAD\12>dvc dag
+WARNING: Unable to find `less` in the PATH. Check out <https://man.dvc.org/pipeline/show> for more info.
+                                          +--------------------------------------+                          +-----------------+
+                                          | data\raw\fashion-mnist_train.csv.dvc |                      ****| params.yaml.dvc |
+                                          +--------------------------------------+            **********    +-----------------+
+                                                              *                     **********              ***              ***
+                                                              *           **********                     ***                    ***
+                                                              *      *****                            ***                          ***
+                                                      +-------------+                               **                                **
+                                                      | sample_data |***                            *                                  *
+                                                      +-------------+   ******                      *                                  *
+                                                              *               *******               *                                  *
+                                                              *                      ******         *                                  *
+                                                              *                            ****     *                                  *
++-------------------------------------+               +--------------+                      +--------------+                         ***
+| data\raw\fashion-mnist_test.csv.dvc |               | augment_data |****                  | train_models |                     ****
++-------------------------------------+****           +--------------+    ********        **+--------------+                 ****
+                    *                      *********                              ********                              *****
+                    *                               *********                    ****     ********                  ****                    *                                        *****            ***                 ****           ***
+                    *****                                       +-----------------+               +------------------+
+                         *********                              | evaluate_models |               | train_models_aug |
+                                  *********                     +-----------------+            ***+------------------+
+                                           *********                                     ******
+                                                    *********                      ******
+                                                             *****              ***
+                                                              +---------------------+
+                                                              | evaluate_models_aug |
+                                                              +---------------------+
++-------------------------------------+
+| data\raw\t10k-images-idx3-ubyte.dvc |
++-------------------------------------+
++-------------------------------------+
+| data\raw\t10k-labels-idx1-ubyte.dvc |
++-------------------------------------+
++--------------------------------------+
+| data\raw\train-images-idx3-ubyte.dvc |
++--------------------------------------+
++--------------------------------------+
+| data\raw\train-labels-idx1-ubyte.dvc |
++--------------------------------------+
+
+D:\7\TAD\12>dvc stage add -n augment_data -d data/sampled_train.csv -d src/augment_data.py -o data/augmented_only_train.csv python src/augment_data.py data/augmented_only_train.csv
+ERROR: Stage 'augment_data' already exists in 'dvc.yaml'. Use '--force' to overwrite.
+
+D:\7\TAD\12>dvc stage add -n augment_data -d data/sampled_train.csv -d src/augment_data.py -o data/augmented_only_train.csv python src/augment_data.py data/augmented_only_train.csv --force
+ERROR: Stage 'augment_data' already exists in 'dvc.yaml'. Use '--force' to overwrite.
+
+D:\7\TAD\12>dvc stage add -n augment_data -d data/sampled_train.csv -d src/augment_data.py -o data/augmented_only_train.csv python src/augment_data.py data/augmented_only_train.csv --force
+ERROR: Stage 'augment_data' already exists in 'dvc.yaml'. Use '--force' to overwrite.
+
+D:\7\TAD\12>dvc stage add -n augment_data -d data/sampled_train.csv -d src/augment_data.py -o data/augmented_only_train.csv python src/augment_data.py data/augmented_only_train.csv
+Added stage 'augment_data' in 'dvc.yaml'
+
+To track the changes with git, run:
+
+        git add dvc.yaml
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+
+D:\7\TAD\12>git log
+commit 3efae4e8db51e55d22b146fe5ad1a82fc2934897 (HEAD -> aug_data)
+Author: Nurdoolot <abdullaevnurdoolot3@gmail.com>
+Date:   Tue Dec 16 15:23:27 2025 +0700
+
+    add aug pipline with stages
+
+commit 7b23e064e7863db0b01a4c9892998a4cd849bf1a (tag: rf-v2, rf_changed)
+Author: Nurdoolot <abdullaevnurdoolot3@gmail.com>
+Date:   Tue Dec 16 14:41:50 2025 +0700
+
+    change random f parameter
+
+commit e5c6ff9381ddea7e0acd816003bcfaabc1b1d6c1 (tag: base-v1, origin/main, main)
+Author: Nurdoolot <abdullaevnurdoolot3@gmail.com>
+Date:   Tue Dec 16 13:59:46 2025 +0700
+
+    add stages pipline
+
+commit d76160432a0e889106da64921da979ea3717f493
+Author: Nurdoolot <abdullaevnurdoolot3@gmail.com>
+Date:   Tue Dec 16 13:44:25 2025 +0700
+
+    dvc init and add raw data to dvc
+
+D:\7\TAD\12>git status
+On branch aug_data
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   dvc.lock
+        modified:   dvc.yaml
+        modified:   params.yaml.dvc
+        modified:   src/augment_data.py
+        modified:   src/evaluate_models.py
+        modified:   src/train_models.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "add aug stage v-2"
+[aug_data 68cb948] add aug stage v-2
+ 6 files changed, 43 insertions(+), 28 deletions(-)
+
+D:\7\TAD\12>dvc repro augment_data
+'params.yaml.dvc' didn't change, skipping
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+Stage 'sample_data' didn't change, skipping
+Running stage 'augment_data':
+> python src/augment_data.py data/augmented_only_train.csv
+Augmented dataset (only copies, 5000 rows) saved to data/augmented_only_train.csv
+Updating lock file 'dvc.lock'
+
+To track the changes with git, run:
+
+        git add dvc.lock
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+Use `dvc push` to send your updates to remote storage.
+
+D:\7\TAD\12>dvc add data/augmented_only_train.csv
+ERROR: cannot update 'augmented_only_train.csv': overlaps with an output of stage: 'augment_data' in 'dvc.yaml'.
+Run the pipeline or use 'dvc commit' to force update it.
+
+D:\7\TAD\12>git status
+On branch aug_data
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   dvc.lock
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+D:\7\TAD\12>dvc remove sample_data --force
+ERROR: unrecognized arguments: --force
+usage: dvc remove [-h] [-q | -v] [--outs] targets [targets ...]
+
+Remove stages from dvc.yaml and/or stop tracking files or directories.
+Documentation: <https://man.dvc.org/remove>
+
+positional arguments:
+  targets        .dvc files or stages from dvc.yaml to remove.
+
+options:
+  -h, --help     show this help message and exit
+  -q, --quiet    Be quiet.
+  -v, --verbose  Be verbose.
+  --outs         Remove outputs as well.
+
+D:\7\TAD\12>dvc remove sample_data
+
+D:\7\TAD\12>dvc stage add -n sample_data -d data/raw/fashion-mnist_train.csv -d data/augmented_only_train.csv -d src/sample_data.py -p sample_size -o data/combined_train.csv python src/sample_data.py data/combined_train.csv
+Added stage 'sample_data' in 'dvc.yaml'
+
+To track the changes with git, run:
+
+        git add dvc.yaml 'data\.gitignore'
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+
+D:\7\TAD\12>dvc remove train_models
+
+D:\7\TAD\12>dvc stage add -n train_models -d data/combined_train.csv -d src/train_models.py -p random_forest,logistic_regression,naive_bayes -o models python src/train_models.py data/combined_train.csv models
+Added stage 'train_models' in 'dvc.yaml'
+
+To track the changes with git, run:
+
+        git add .gitignore dvc.yaml
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+
+D:\7\TAD\12>dvc remove evaluate_models
+
+D:\7\TAD\12>dvc stage add -n evaluate_models -d models -d data/raw/fashion-mnist_test.csv -d src/evaluate_models.py -m metrics/eval.json python src/evaluate_models.py metrics/eval.json models
+Added stage 'evaluate_models' in 'dvc.yaml'
+
+To track the changes with git, run:
+
+        git add dvc.yaml 'metrics\.gitignore'
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "mod script for combine aug and original data"
+[aug_data e221ad2] mod script for combine aug and original data
+ 7 files changed, 5056 insertions(+), 114 deletions(-)
+ create mode 100644 data/sampled_train.csv
+
+D:\7\TAD\12>dvc repro evaluate_models
+Stage 'augment_data' didn't change, skipping
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Running stage 'sample_data':
+> python src/sample_data.py data/combined_train.csv
+Combined dataset (5000 original + 5000 augmented = 10000 rows) saved to data/combined_train.csv
+Updating lock file 'dvc.lock'
+
+Running stage 'train_models':
+> python src/train_models.py data/combined_train.csv models
+Traceback (most recent call last):
+  File "D:\7\TAD\12\src\train_models.py", line 46, in <module>
+    main()
+  File "D:\7\TAD\12\src\train_models.py", line 35, in main
+    lr.fit(X, y)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py", line 1223, in fit
+    X, y = self._validate_data(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 650, in _validate_data
+    X, y = check_X_y(X, y, **check_params)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 1301, in check_X_y
+    X = check_array(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 1064, in check_array
+    _assert_all_finite(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 123, in _assert_all_finite
+    _assert_all_finite_element_wise(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 172, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input X contains NaN.
+LogisticRegression does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values
+ERROR: failed to reproduce 'train_models': failed to run: python src/train_models.py data/combined_train.csv models, exited with 1
+
+D:\7\TAD\12>git status
+On branch aug_data
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   dvc.lock
+        modified:   src/augment_data.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "fix augmentation: use constant mode and nan_to_num"
+[aug_data 4375d25] fix augmentation: use constant mode and nan_to_num
+ 2 files changed, 35 insertions(+), 10 deletions(-)
+
+D:\7\TAD\12>dvc repro evaluate_models
+Running stage 'augment_data':
+> python src/augment_data.py data/augmented_only_train.csv
+Augmented dataset (only copies, 5000 rows) saved to data/augmented_only_train.csv
+Updating lock file 'dvc.lock'
+
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Running stage 'sample_data':
+> python src/sample_data.py data/combined_train.csv
+Combined dataset (5000 original + 5000 augmented = 10000 rows) saved to data/combined_train.csv
+Updating lock file 'dvc.lock'
+
+Running stage 'train_models':
+> python src/train_models.py data/combined_train.csv models
+Traceback (most recent call last):
+  File "D:\7\TAD\12\src\train_models.py", line 46, in <module>
+    main()
+  File "D:\7\TAD\12\src\train_models.py", line 35, in main
+    lr.fit(X, y)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py", line 1223, in fit
+    X, y = self._validate_data(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 650, in _validate_data
+    X, y = check_X_y(X, y, **check_params)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 1301, in check_X_y
+    X = check_array(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 1064, in check_array
+    _assert_all_finite(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 123, in _assert_all_finite
+    _assert_all_finite_element_wise(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 172, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input X contains NaN.
+LogisticRegression does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values
+ERROR: failed to reproduce 'train_models': failed to run: python src/train_models.py data/combined_train.csv models, exited with 1
+
+D:\7\TAD\12>dvc repro evaluate_models
+Running stage 'augment_data':
+> python src/augment_data.py data/augmented_only_train.csv
+Augmented dataset (only copies, 25000 rows) saved to data/augmented_only_train.csv
+Updating lock file 'dvc.lock'
+
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Running stage 'sample_data':
+> python src/sample_data.py data/combined_train.csv
+Combined dataset (5000 original + 25000 augmented = 30000 rows) saved to data/combined_train.csv
+Updating lock file 'dvc.lock'
+
+Running stage 'train_models':
+> python src/train_models.py data/combined_train.csv models
+Traceback (most recent call last):
+  File "D:\7\TAD\12\src\train_models.py", line 46, in <module>
+    main()
+  File "D:\7\TAD\12\src\train_models.py", line 35, in main
+    lr.fit(X, y)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py", line 1223, in fit
+    X, y = self._validate_data(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 650, in _validate_data
+    X, y = check_X_y(X, y, **check_params)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 1301, in check_X_y
+    X = check_array(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 1064, in check_array
+    _assert_all_finite(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 123, in _assert_all_finite
+    _assert_all_finite_element_wise(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 172, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input X contains NaN.
+LogisticRegression does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values
+ERROR: failed to reproduce 'train_models': failed to run: python src/train_models.py data/combined_train.csv models, exited with 1
+
+D:\7\TAD\12>git status
+On branch aug_data
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   dvc.lock
+        modified:   src/augment_data.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "fix nan v-2"
+[aug_data ee83eb3] fix nan v-2
+ 2 files changed, 28 insertions(+), 23 deletions(-)
+
+D:\7\TAD\12>dvc repro evaluate_models
+Running stage 'augment_data':
+> python src/augment_data.py data/augmented_only_train.csv
+Augmented dataset (only copies, 5000 rows) saved to data/augmented_only_train.csv
+Updating lock file 'dvc.lock'
+
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Running stage 'sample_data':
+> python src/sample_data.py data/combined_train.csv
+Combined dataset (5000 original + 5000 augmented = 10000 rows) saved to data/combined_train.csv
+Updating lock file 'dvc.lock'
+
+Running stage 'train_models':
+> python src/train_models.py data/combined_train.csv models
+Traceback (most recent call last):
+  File "D:\7\TAD\12\src\train_models.py", line 46, in <module>
+    main()
+  File "D:\7\TAD\12\src\train_models.py", line 35, in main
+    lr.fit(X, y)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py", line 1223, in fit
+    X, y = self._validate_data(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 650, in _validate_data
+    X, y = check_X_y(X, y, **check_params)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 1301, in check_X_y
+    X = check_array(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 1064, in check_array
+    _assert_all_finite(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 123, in _assert_all_finite
+    _assert_all_finite_element_wise(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\validation.py", line 172, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input X contains NaN.
+LogisticRegression does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values
+ERROR: failed to reproduce 'train_models': failed to run: python src/train_models.py data/combined_train.csv models, exited with 1
+
+D:\7\TAD\12>dvc repro evaluate_models
+Running stage 'augment_data':
+> python src/augment_data.py data/augmented_only_train.csv
+Augmented dataset (only copies, 25000 rows) saved to data/augmented_only_train.csv
+Updating lock file 'dvc.lock'
+
+'data\raw\fashion-mnist_train.csv.dvc' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Running stage 'sample_data':
+> python src/sample_data.py data/combined_train.csv
+Combined dataset (5000 original + 25000 augmented = 30000 rows) saved to data/combined_train.csv
+Updating lock file 'dvc.lock'
+
+Running stage 'train_models':
+> python src/train_models.py data/combined_train.csv models
+C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py:469: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+Models trained and saved to models/
+Updating lock file 'dvc.lock'
+
+'data\raw\fashion-mnist_test.csv.dvc' didn't change, skipping
+Running stage 'evaluate_models':
+> python src/evaluate_models.py metrics/eval.json models
+Metrics saved to metrics/eval.json
+ERROR: failed to reproduce 'evaluate_models': failed to run: python src/evaluate_models.py metrics/eval.json models, exited with 3221225786
+
+D:\7\TAD\12>dvc repro evaluate_models_aug
+'params.yaml.dvc' didn't change, skipping
+Stage 'augment_data' didn't change, skipping
+Running stage 'train_models_aug':
+> python src/train_models.py data/augmented_only_train.csv models_aug
+C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py:469: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+Models trained and saved to models/
+ERROR: failed to reproduce 'train_models_aug': output 'models_aug' does not exist
+
+D:\7\TAD\12>dvc repro evaluate_models_aug
+'data\raw\fashion-mnist_test.csv.dvc' didn't change, skipping
+Stage 'augment_data' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Running stage 'train_models_aug':
+> python src/train_models.py data/augmented_only_train.csv models_aug
+C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py:469: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+Models trained and saved to models/
+ERROR: failed to reproduce 'train_models_aug': output 'models_aug' does not exist
+
+D:\7\TAD\12>dvc repro evaluate_models_aug
+Stage 'augment_data' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Running stage 'train_models_aug':
+> python src/train_models.py data/augmented_only_train.csv models_aug
+Traceback (most recent call last):
+  File "D:\7\TAD\12\src\train_models.py", line 46, in <module>
+    main()
+  File "D:\7\TAD\12\src\train_models.py", line 35, in main
+    lr.fit(X, y)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py", line 1350, in fit
+    fold_coefs_ = Parallel(n_jobs=self.n_jobs, verbose=self.verbose, prefer=prefer)(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\parallel.py", line 74, in __call__
+    return super().__call__(iterable_with_config)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\joblib\parallel.py", line 1918, in __call__
+    return output if self.return_generator else list(output)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\joblib\parallel.py", line 1847, in _get_sequential_output
+    res = func(*args, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\utils\parallel.py", line 136, in __call__
+    return self.function(*args, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py", line 455, in _logistic_regression_path
+    opt_res = optimize.minimize(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\scipy\optimize\_minimize.py", line 713, in minimize
+    res = _minimize_lbfgsb(fun, x0, args, jac, bounds,
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\scipy\optimize\_lbfgsb_py.py", line 407, in _minimize_lbfgsb
+    f, g = func_and_grad(x)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\scipy\optimize\_differentiable_functions.py", line 296, in fun_and_grad
+    self._update_fun()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\scipy\optimize\_differentiable_functions.py", line 262, in _update_fun
+    self._update_fun_impl()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\scipy\optimize\_differentiable_functions.py", line 163, in update_fun
+    self.f = fun_wrapped(self.x)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\scipy\optimize\_differentiable_functions.py", line 145, in fun_wrapped
+    fx = fun(np.copy(x), *args)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\scipy\optimize\_optimize.py", line 79, in __call__
+    self._compute_if_needed(x, *args)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\scipy\optimize\_optimize.py", line 73, in _compute_if_needed
+    fg = self.fun(x, *args)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_linear_loss.py", line 281, in loss_gradient
+    loss, grad_pointwise = self.base_loss.loss_gradient(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\_loss\loss.py", line 255, in loss_gradient
+    self.closs.loss_gradient(
+KeyboardInterrupt
+ERROR: failed to reproduce 'train_models_aug': failed to run: python src/train_models.py data/augmented_only_train.csv models_aug, exited with 3221225786
+
+D:\7\TAD\12>dvc repro evaluate_models_aug
+'data\raw\fashion-mnist_test.csv.dvc' didn't change, skipping
+Stage 'augment_data' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Running stage 'train_models_aug':
+> python src/train_models.py data/augmented_only_train.csv models_aug
+C:\Users\user\AppData\Local\Programs\Python\Python310\lib\site-packages\sklearn\linear_model\_logistic.py:469: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+Models trained and saved to models/
+Updating lock file 'dvc.lock'
+
+Running stage 'evaluate_models_aug':
+> python src/evaluate_models.py metrics/eval_aug.json models_aug
+Metrics saved to new file: metrics\eval_aug_20251216_164614.json
+(Original base path preserved: metrics/eval_aug.json)
+ERROR: failed to reproduce 'evaluate_models_aug': output 'metrics\eval_aug.json' does not exist
+
+D:\7\TAD\12>dvc repro evaluate_models_aug
+'data\raw\fashion-mnist_test.csv.dvc' didn't change, skipping
+Stage 'augment_data' didn't change, skipping
+'params.yaml.dvc' didn't change, skipping
+Stage 'train_models_aug' didn't change, skipping
+Running stage 'evaluate_models_aug':
+> python src/evaluate_models.py metrics/eval_aug.json models_aug
+Metrics saved to new file: metrics\eval_aug.json
+(Original base path preserved: metrics/eval_aug.json)
+Updating lock file 'dvc.lock'
+
+To track the changes with git, run:
+
+        git add dvc.lock
+
+To enable auto staging, run:
+
+        dvc config core.autostage true
+Use `dvc push` to send your updates to remote storage.
+
+D:\7\TAD\12>git status
+On branch aug_data
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   dvc.lock
+        modified:   src/augment_data.py
+        modified:   src/evaluate_models.py
+        modified:   src/sample_data.py
+        modified:   src/train_models.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "finish 3-4 point"
+[aug_data 4af03fe] finish 3-4 point
+ 5 files changed, 137 insertions(+), 54 deletions(-)
+
+D:\7\TAD\12>git status
+On branch aug_data
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        otchet.ipynb
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+D:\7\TAD\12>git add *
+warning: in the working copy of 'otchet.ipynb', LF will be replaced by CRLF the next time Git touches it
+
+D:\7\TAD\12>git commit -m "add otchet"
+[aug_data 4ce21a1] add otchet
+ 1 file changed, 224 insertions(+)
+ create mode 100644 otchet.ipynb
+
+D:\7\TAD\12>git push
+fatal: The current branch aug_data has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin aug_data
+
+To have this happen automatically for branches without a tracking
+upstream, see 'push.autoSetupRemote' in 'git help config'.
+
+
+D:\7\TAD\12>git push --set-upstream origin aug_data
+Enumerating objects: 102, done.
+Counting objects: 100% (102/102), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (83/83), done.
+Writing objects:  69% (68/98), 18.52 MiB | 1.12 MiB/s
+D:\7\TAD\12>git status
+On branch aug_data
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   .gitignore
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        params.yaml
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "change gitignore"
+[aug_data 8af628b] change gitignore
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+ create mode 100644 params.yaml
+
+D:\7\TAD\12>git push
+fatal: The current branch aug_data has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin aug_data
+
+To have this happen automatically for branches without a tracking
+upstream, see 'push.autoSetupRemote' in 'git help config'.
+
+
+D:\7\TAD\12>git push --set-upstream origin aug_data
+Enumerating objects: 106, done.
+Counting objects: 100% (106/106), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (86/86), done.
+error: RPC failed; HTTP 408 curl 22 The requested URL returned error: 408
+send-pack: unexpected disconnect while reading sideband packet
+Writing objects: 100% (102/102), 71.50 MiB | 767.00 KiB/s, done.
+Total 102 (delta 31), reused 0 (delta 0), pack-reused 0 (from 0)
+fatal: the remote end hung up unexpectedly
+Everything up-to-date
+
+D:\7\TAD\12> git tag
+base-v1
+lr-v3
+rf-v2
+
+D:\7\TAD\12>git branch
+* aug_data
+  lr_changed
+  main
+  rf_changed
+
+D:\7\TAD\12>git checkout
+M       .gitignore
+
+D:\7\TAD\12>git checkout lr_chaged
+error: pathspec 'lr_chaged' did not match any file(s) known to git
+
+D:\7\TAD\12>git checkout lr_changed
+error: Your local changes to the following files would be overwritten by checkout:
+        .gitignore
+Please commit your changes or stash them before you switch branches.
+Aborting
+
+D:\7\TAD\12>git branch
+* aug_data
+  lr_changed
+  main
+  rf_changed
+
+D:\7\TAD\12>git checkout lr_changed
+error: Your local changes to the following files would be overwritten by checkout:
+        .gitignore
+Please commit your changes or stash them before you switch branches.
+Aborting
+
+D:\7\TAD\12>git status
+On branch aug_data
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   .gitignore
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "finish"
+[aug_data e32e036] finish
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+D:\7\TAD\12>git push
+fatal: The current branch aug_data has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin aug_data
+
+To have this happen automatically for branches without a tracking
+upstream, see 'push.autoSetupRemote' in 'git help config'.
+
+
+D:\7\TAD\12>git push --set-upstream origin aug_data
+Enumerating objects: 109, done.
+Counting objects: 100% (109/109), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (88/88), done.
+Writing objects: 100% (105/105), 71.50 MiB | 388.00 KiB/s, done.
+Total 105 (delta 32), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (32/32), completed with 1 local object.
+remote: error: Trace: f3a194889a6ba930c3d3a94a8c869ee5d010cc97439fec8aa401bc080d7129a0
+remote: error: See https://gh.io/lfs for more information.
+remote: error: File dvc_storage/files/md5/97/6229da8a00a3ccf41b8009e4e48d77 is 126.88 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/Nurdoolota/tad.git
+ ! [remote rejected] aug_data -> aug_data (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/Nurdoolota/tad.git'
+
+D:\7\TAD\12>git tag
+base-v1
+lr-v3
+rf-v2
+
+D:\7\TAD\12>git push lr-v3
+fatal: 'lr-v3' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+D:\7\TAD\12>git branch
+* aug_data
+  lr_changed
+  main
+  rf_changed
+
+D:\7\TAD\12>git checkout main
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+
+D:\7\TAD\12>git push
+Everything up-to-date
+
+D:\7\TAD\12>git log
+commit e5c6ff9381ddea7e0acd816003bcfaabc1b1d6c1 (HEAD -> main, tag: base-v1, origin/main)
+Author: Nurdoolot <abdullaevnurdoolot3@gmail.com>
+Date:   Tue Dec 16 13:59:46 2025 +0700
+
+    add stages pipline
+
+commit d76160432a0e889106da64921da979ea3717f493
+Author: Nurdoolot <abdullaevnurdoolot3@gmail.com>
+Date:   Tue Dec 16 13:44:25 2025 +0700
+
+    dvc init and add raw data to dvc
+
+D:\7\TAD\12>git checkout rf_changed
+Updating files: 100% (22/22), done.
+Switched to branch 'rf_changed'
+
+D:\7\TAD\12>git push
+fatal: The current branch rf_changed has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin rf_changed
+
+To have this happen automatically for branches without a tracking
+upstream, see 'push.autoSetupRemote' in 'git help config'.
+
+
+D:\7\TAD\12>git push --set-upstream origin rf_changed
+Enumerating objects: 47, done.
+Counting objects: 100% (47/47), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (38/38), done.
+Writing objects: 100% (44/44), 71.45 MiB | 475.00 KiB/s, done.
+Total 44 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 1 local object.
+remote: error: Trace: 82b6fbe3d66d4c8c9c564574a473f4d8c775305dc570398a67d719a0983a0f79
+remote: error: See https://gh.io/lfs for more information.
+remote: error: File dvc_storage/files/md5/97/6229da8a00a3ccf41b8009e4e48d77 is 126.88 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/Nurdoolota/tad.git
+ ! [remote rejected] rf_changed -> rf_changed (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/Nurdoolota/tad.git'
+
+D:\7\TAD\12>git checkout aug_data
+Switched to branch 'aug_data'
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "git ignore"
+[aug_data 89d328b] git ignore
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+D:\7\TAD\12>git push
+fatal: The current branch aug_data has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin aug_data
+
+To have this happen automatically for branches without a tracking
+upstream, see 'push.autoSetupRemote' in 'git help config'.
+
+
+D:\7\TAD\12> git push --set-upstream origin aug_data
+Enumerating objects: 112, done.
+Counting objects: 100% (112/112), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (90/90), done.
+Writing objects: 100% (108/108), 71.50 MiB | 431.00 KiB/s, done.
+Total 108 (delta 33), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (33/33), completed with 1 local object.
+remote: error: Trace: 37198d34846bfc080fd03acf51ffc71089b4fb0d93147ef4a49771ec592cc2aa
+remote: error: See https://gh.io/lfs for more information.
+remote: error: File dvc_storage/files/md5/97/6229da8a00a3ccf41b8009e4e48d77 is 126.88 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/Nurdoolota/tad.git
+ ! [remote rejected] aug_data -> aug_data (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/Nurdoolota/tad.git'
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "gitignor"
+[aug_data aac8f60] gitignor
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+D:\7\TAD\12> git push --set-upstream origin aug_data
+Enumerating objects: 115, done.
+Counting objects: 100% (115/115), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (92/92), done.
+Writing objects: 100% (111/111), 71.50 MiB | 461.00 KiB/s, done.
+Total 111 (delta 34), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (34/34), completed with 1 local object.
+remote: error: Trace: c8d538bc0bbf9cc47a6818e892fe8c9146876de7d6445e9cf8e21b18a65b304f
+remote: error: See https://gh.io/lfs for more information.
+remote: error: File dvc_storage/files/md5/97/6229da8a00a3ccf41b8009e4e48d77 is 126.88 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/Nurdoolota/tad.git
+ ! [remote rejected] aug_data -> aug_data (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/Nurdoolota/tad.git'
+
+D:\7\TAD\12>git rm --cached -r storage/
+fatal: pathspec 'storage/' did not match any files
+
+D:\7\TAD\12>git rm --cached -r dvc_storage/
+rm 'dvc_storage/files/md5/0a/a3f223c5d84adaf6bda49730cd5c51'
+rm 'dvc_storage/files/md5/0c/34a8c14b515b0d97a13974bf813fe2'
+rm 'dvc_storage/files/md5/15/d484375f8d13e6eb1aabb0c3f46965'
+rm 'dvc_storage/files/md5/24/65d36076567e411d93056dce0e3c1d'
+rm 'dvc_storage/files/md5/4e/0e396b64e3cffb1f7f1ca51c2ca050'
+rm 'dvc_storage/files/md5/64/ec16a6b73b3514634d529a71dd8306'
+rm 'dvc_storage/files/md5/6e/464225ed0f6a1b335661989176fbe2'
+rm 'dvc_storage/files/md5/81/81f5470baa50b63fa0f6fddb340f0a'
+rm 'dvc_storage/files/md5/82/4276d6a1060fd79683f05a1e366f48.dir'
+rm 'dvc_storage/files/md5/90/18921c3c673c538a1fc5bad174d6f9'
+rm 'dvc_storage/files/md5/97/6229da8a00a3ccf41b8009e4e48d77'
+rm 'dvc_storage/files/md5/bf/94cdf31e7ac80e0589c12f279c8d4c'
+rm 'dvc_storage/files/md5/e5/6c0557f2e987686f1a6c629366f017'
+rm 'dvc_storage/files/md5/f4/a8712d7a061bf5bd6d2ca38dc4d50a'
+
+D:\7\TAD\12>git status
+HEAD detached from 4ce21a1
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        deleted:    dvc_storage/files/md5/0a/a3f223c5d84adaf6bda49730cd5c51
+        deleted:    dvc_storage/files/md5/0c/34a8c14b515b0d97a13974bf813fe2
+        deleted:    dvc_storage/files/md5/15/d484375f8d13e6eb1aabb0c3f46965
+        deleted:    dvc_storage/files/md5/24/65d36076567e411d93056dce0e3c1d
+        deleted:    dvc_storage/files/md5/4e/0e396b64e3cffb1f7f1ca51c2ca050
+        deleted:    dvc_storage/files/md5/64/ec16a6b73b3514634d529a71dd8306
+        deleted:    dvc_storage/files/md5/6e/464225ed0f6a1b335661989176fbe2
+        deleted:    dvc_storage/files/md5/81/81f5470baa50b63fa0f6fddb340f0a
+        deleted:    dvc_storage/files/md5/82/4276d6a1060fd79683f05a1e366f48.dir
+        deleted:    dvc_storage/files/md5/90/18921c3c673c538a1fc5bad174d6f9
+        deleted:    dvc_storage/files/md5/97/6229da8a00a3ccf41b8009e4e48d77
+        deleted:    dvc_storage/files/md5/bf/94cdf31e7ac80e0589c12f279c8d4c
+        deleted:    dvc_storage/files/md5/e5/6c0557f2e987686f1a6c629366f017
+        deleted:    dvc_storage/files/md5/f4/a8712d7a061bf5bd6d2ca38dc4d50a
+
+
+D:\7\TAD\12>git commit --amend -m "gitignore add dvc_storage"
+[detached HEAD 353343a] gitignore add dvc_storage
+ Date: Tue Dec 16 17:54:45 2025 +0700
+ 15 files changed, 1 insertion(+), 75042 deletions(-)
+ delete mode 100644 dvc_storage/files/md5/0a/a3f223c5d84adaf6bda49730cd5c51
+ delete mode 100644 dvc_storage/files/md5/0c/34a8c14b515b0d97a13974bf813fe2
+ delete mode 100644 dvc_storage/files/md5/15/d484375f8d13e6eb1aabb0c3f46965
+ delete mode 100644 dvc_storage/files/md5/24/65d36076567e411d93056dce0e3c1d
+ delete mode 100644 dvc_storage/files/md5/4e/0e396b64e3cffb1f7f1ca51c2ca050
+ delete mode 100644 dvc_storage/files/md5/64/ec16a6b73b3514634d529a71dd8306
+ delete mode 100644 dvc_storage/files/md5/6e/464225ed0f6a1b335661989176fbe2
+ delete mode 100644 dvc_storage/files/md5/81/81f5470baa50b63fa0f6fddb340f0a
+ delete mode 100644 dvc_storage/files/md5/82/4276d6a1060fd79683f05a1e366f48.dir
+ delete mode 100644 dvc_storage/files/md5/90/18921c3c673c538a1fc5bad174d6f9
+ delete mode 100644 dvc_storage/files/md5/97/6229da8a00a3ccf41b8009e4e48d77
+ delete mode 100644 dvc_storage/files/md5/bf/94cdf31e7ac80e0589c12f279c8d4c
+ delete mode 100644 dvc_storage/files/md5/e5/6c0557f2e987686f1a6c629366f017
+ delete mode 100644 dvc_storage/files/md5/f4/a8712d7a061bf5bd6d2ca38dc4d50a
+
+D:\7\TAD\12>git push --force-with-lease origin aug_data
+Enumerating objects: 117, done.
+Counting objects: 100% (117/117), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (94/94), done.
+Writing objects: 100% (113/113), 71.50 MiB | 316.00 KiB/s, done.
+Total 113 (delta 34), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (34/34), completed with 1 local object.
+remote: error: Trace: 7be97c735adf9b347eda6c175373e857789dfa2d20a5f181d36b26969b850dc5
+remote: error: See https://gh.io/lfs for more information.
+remote: error: File dvc_storage/files/md5/97/6229da8a00a3ccf41b8009e4e48d77 is 126.88 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/Nurdoolota/tad.git
+ ! [remote rejected] aug_data -> aug_data (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/Nurdoolota/tad.git'
+
+D:\7\TAD\12>git statu
+git: 'statu' is not a git command. See 'git --help'.
+
+The most similar commands are
+        status
+        stage
+        stash
+
+D:\7\TAD\12>git status
+HEAD detached from 4ce21a1
+nothing to commit, working tree clean
+
+D:\7\TAD\12>git add *
+
+D:\7\TAD\12>git commit -m "finish"
+HEAD detached from 4ce21a1
+nothing to commit, working tree clean
+
+D:\7\TAD\12>git log --oneline --graph
+* 353343a (HEAD) gitignore add dvc_storage
+* 4ce21a1 add otchet
+* 4af03fe finish 3-4 point
+* ee83eb3 fix nan v-2
+* 4375d25 fix augmentation: use constant mode and nan_to_num
+* e221ad2 mod script for combine aug and original data
+* 68cb948 add aug stage v-2
+* 3efae4e add aug pipline with stages
+* 7b23e06 (tag: rf-v2, rf_changed) change random f parameter
+* e5c6ff9 (tag: base-v1, origin/main, main) add stages pipline
+* d761604 dvc init and add raw data to dvc
+
+D:\7\TAD\12>git branch
+* (HEAD detached from 4ce21a1)
+  aug_data
+  lr_changed
+  main
+  rf_changed
+
+D:\7\TAD\12>git checkout aug_data
+Warning: you are leaving 1 commit behind, not connected to
+any of your branches:
+
+  353343a gitignore add dvc_storage
+
+If you want to keep it by creating a new branch, this may be a good time
+to do so with:
+
+ git branch <new-branch-name> 353343a
+
+Switched to branch 'aug_data'
+
+D:\7\TAD\12>git branch
+* aug_data
+  lr_changed
+  main
+  rf_changed
+
+D:\7\TAD\12>git rm -r --cached dvc_storage/
+fatal: pathspec 'dvc_storage/' did not match any files
+
+D:\7\TAD\12>git status
+On branch aug_data
+nothing to commit, working tree clean
+
+D:\7\TAD\12>git filter-repo --path dvc_storage/ --invert-paths --force
+git: 'filter-repo' is not a git command. See 'git --help'.
+
+D:\7\TAD\12>pip install git-filter-repo
+Collecting git-filter-repo
+  Downloading git_filter_repo-2.47.0-py3-none-any.whl.metadata (31 kB)
+Downloading git_filter_repo-2.47.0-py3-none-any.whl (76 kB)
+Installing collected packages: git-filter-repo
+Successfully installed git-filter-repo-2.47.0
+
+[notice] A new release of pip is available: 25.0.1 -> 25.3
+[notice] To update, run: python.exe -m pip install --upgrade pip
+
+D:\7\TAD\12>git filter-repo --path dvc_storage/ --invert-paths --force
+NOTICE: Removing 'origin' remote; see 'Why is my origin removed?'
+        in the manual if you want to push back there.
+        (was https://github.com/Nurdoolota/tad.git)
+Parsed 16 commits
+New history written in 2.74 seconds; now repacking/cleaning...
+Repacking your repo and cleaning out old unneeded objects
+HEAD is now at 6220281 gitignor
+Enumerating objects: 103, done.
+Counting objects: 100% (103/103), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (84/84), done.
+Writing objects: 100% (103/103), done.
+Total 103 (delta 36), reused 0 (delta 0), pack-reused 0 (from 0)
+Completely finished after 4.01 seconds.
+
+D:\7\TAD\12>git push origin aug_data --force-with-lease
+fatal: 'origin' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+D:\7\TAD\12>git origin
+git: 'origin' is not a git command. See 'git --help'.
+
+D:\7\TAD\12>git status
+On branch aug_data
+nothing to commit, working tree clean
+
+D:\7\TAD\12>git push
+fatal: No configured push destination.
+Either specify the URL from the command-line or configure a remote repository using
+
+    git remote add <name> <url>
+
+and then push using the remote name
+
+    git push <name>
+
+
+D:\7\TAD\12>git remote add origin https://github.com/Nurdoolota/tad_3_pr.git
+
+D:\7\TAD\12>git branch -M main
+
+D:\7\TAD\12>git push -u origin main
+Enumerating objects: 100, done.
+Counting objects: 100% (100/100), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (48/48), done.
+Writing objects: 100% (100/100), 2.77 MiB | 1.34 MiB/s, done.
+Total 100 (delta 33), reused 99 (delta 33), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (33/33), done.
+To https://github.com/Nurdoolota/tad_3_pr.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+
+D:\7\TAD\12>git
