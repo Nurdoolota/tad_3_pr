@@ -1,5 +1,5 @@
 
 /models_aug
 /models
-/.dvc
-/dvc_storage
+.dvc/
+dvc_storage/
