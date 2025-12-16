@@ -1,0 +1,29 @@
+stages:
+  sample_data:
+    cmd: python src/sample_data.py data/sampled_train.csv
+    deps:
+    - data/raw/fashion-mnist_train.csv
+    - src/sample_data.py
+    params:
+    - sample_size
+    outs:
+    - data/sampled_train.csv
+  train_models:
+    cmd: python src/train_models.py data/sampled_train.csv
+    deps:
+    - data/sampled_train.csv
+    - src/train_models.py
+    params:
+    - logistic_regression
+    - naive_bayes
+    - random_forest
+    outs:
+    - models
+  evaluate_models:
+    cmd: python src/evaluate_models.py metrics/eval.json
+    deps:
+    - data/raw/fashion-mnist_test.csv
+    - models
+    - src/evaluate_models.py
+    metrics:
+    - metrics/eval.json

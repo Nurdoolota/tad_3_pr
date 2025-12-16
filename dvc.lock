@@ -1,0 +1,68 @@
+schema: '2.0'
+stages:
+  sample_data:
+    cmd: python src/sample_data.py data/sampled_train.csv
+    deps:
+    - path: data/raw/fashion-mnist_train.csv
+      hash: md5
+      md5: 976229da8a00a3ccf41b8009e4e48d77
+      size: 133047193
+    - path: src/sample_data.py
+      hash: md5
+      md5: c5d01044b09d39bb1c84ccf4a1ccd6b2
+      size: 955
+    params:
+      params.yaml:
+        sample_size: 5000
+    outs:
+    - path: data/sampled_train.csv
+      hash: md5
+      md5: 2465d36076567e411d93056dce0e3c1d
+      size: 11110040
+  train_models:
+    cmd: python src/train_models.py data/sampled_train.csv
+    deps:
+    - path: data/sampled_train.csv
+      hash: md5
+      md5: 2465d36076567e411d93056dce0e3c1d
+      size: 11110040
+    - path: src/train_models.py
+      hash: md5
+      md5: cf12050849b11d79871c62e2632c7de2
+      size: 1413
+    params:
+      params.yaml:
+        logistic_regression:
+          C: 1.0
+        naive_bayes:
+          var_smoothing: 9e-10
+        random_forest:
+          n_estimators: 100
+          max_depth: 10
+    outs:
+    - path: models
+      hash: md5
+      md5: 824276d6a1060fd79683f05a1e366f48.dir
+      size: 7998343
+      nfiles: 3
+  evaluate_models:
+    cmd: python src/evaluate_models.py metrics/eval.json
+    deps:
+    - path: data/raw/fashion-mnist_test.csv
+      hash: md5
+      md5: 64ec16a6b73b3514634d529a71dd8306
+      size: 22176691
+    - path: models
+      hash: md5
+      md5: 824276d6a1060fd79683f05a1e366f48.dir
+      size: 7998343
+      nfiles: 3
+    - path: src/evaluate_models.py
+      hash: md5
+      md5: a9336a7c13edef8c9818d3763ed1de23
+      size: 1666
+    outs:
+    - path: metrics/eval.json
+      hash: md5
+      md5: 4e0e396b64e3cffb1f7f1ca51c2ca050
+      size: 507
