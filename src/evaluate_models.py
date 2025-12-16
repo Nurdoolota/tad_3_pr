@@ -16,6 +16,7 @@ def compute_metrics(y_true, y_pred):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('metrics_path', help='Path to save metrics JSON')
+    parser.add_argument('models_dir', help='Directory with trained models')
     args = parser.parse_args()
 
     # Загрузка тестовых данных
@@ -24,9 +25,9 @@ def main():
     X_test = test_df.drop('label', axis=1)
 
     # Загрузка моделей
-    rf = joblib.load('models/rf_model.pkl')
-    lr = joblib.load('models/lr_model.pkl')
-    nb = joblib.load('models/nb_model.pkl')
+    rf = joblib.load(os.path.join(args.models_dir, 'rf_model_aug.pkl'))
+    lr = joblib.load(os.path.join(args.models_dir, 'lr_model_aug.pkl'))
+    nb = joblib.load(os.path.join(args.models_dir, 'nb_model_aug.pkl'))
 
     # Предсказания и метрики
     metrics = {

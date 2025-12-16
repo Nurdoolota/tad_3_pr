@@ -9,7 +9,8 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_path', help='Path to sampled training data')
+    parser.add_argument('input_path', help='Path to training data CSV')
+    parser.add_argument('models_dir', help='Directory to save models')
     args = parser.parse_args()
 
     # Загрузка параметров из params.yaml
@@ -36,9 +37,9 @@ def main():
 
     # Сохранение моделей
     os.makedirs('models', exist_ok=True)
-    joblib.dump(rf, 'models/rf_model.pkl')
-    joblib.dump(lr, 'models/lr_model.pkl')
-    joblib.dump(nb, 'models/nb_model.pkl')
+    joblib.dump(rf, 'models/rf_model_aug.pkl')
+    joblib.dump(lr, 'models/lr_model_aug.pkl')
+    joblib.dump(nb, 'models/nb_model_aug.pkl')
     print('Models trained and saved to models/')
 
 if __name__ == '__main__':
