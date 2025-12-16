@@ -16,3 +16,26 @@ stages:
       hash: md5
       md5: d60cfe6c959aed552b6bb701cb9fb74b
       size: 60071449
+  sample_data:
+    cmd: python src/sample_data.py data/combined_train.csv
+    deps:
+    - path: data/augmented_only_train.csv
+      hash: md5
+      md5: d60cfe6c959aed552b6bb701cb9fb74b
+      size: 60071449
+    - path: data/raw/fashion-mnist_train.csv
+      hash: md5
+      md5: 976229da8a00a3ccf41b8009e4e48d77
+      size: 133047193
+    - path: src/sample_data.py
+      hash: md5
+      md5: 040ab1cdcebb1984d0d6946c6445140e
+      size: 1550
+    params:
+      params.yaml:
+        sample_size: 5000
+    outs:
+    - path: data/combined_train.csv
+      hash: md5
+      md5: 4103f717274ae7a5f6efe12b2f4dc520
+      size: 76979279

@@ -6,28 +6,30 @@ from scipy.ndimage import rotate, shift
 from sklearn.preprocessing import MinMaxScaler
 
 def apply_transformations(image_vector):
-    """Принимает вектор 784 пикселя, возвращает список из 5 аугментированных векторов"""
+    """Принимает вектор 784 пикселя (нормализованный [0,1]), возвращает 5 аугментированных векторов без NaN"""
     img = image_vector.reshape(28, 28)
     
     augmented = []
     
-    # # Ротация +10°
-    # rotated1 = rotate(img, angle=10, reshape=False, mode='nearest')
+    # # 1. Ротация +10°
+    # rotated1 = rotate(img, angle=10, reshape=False, mode='constant', cval=0)
+    # rotated1 = np.nan_to_num(rotated1, nan=0.0)  # Замена NaN на 0
     # augmented.append(rotated1.flatten())
     
-    # # Ротация -10°
-    # rotated2 = rotate(img, angle=-10, reshape=False, mode='nearest')
+    # # 2. Ротация -10°
+    # rotated2 = rotate(img, angle=-10, reshape=False, mode='constant', cval=0)
+    # rotated2 = np.nan_to_num(rotated2, nan=0.0)
     # augmented.append(rotated2.flatten())
     
-    # # Сдвиг вверх-влево
-    # shifted1 = shift(img, shift=(-2, -2), mode='nearest')
+    # # 3. Сдвиг вверх-влево
+    # shifted1 = shift(img, shift=(-2, -2), mode='constant', cval=0)
     # augmented.append(shifted1.flatten())
     
-    # # Сдвиг вниз-вправо
-    # shifted2 = shift(img, shift=(2, 2), mode='nearest')
+    # # 4. Сдвиг вниз-вправо
+    # shifted2 = shift(img, shift=(2, 2), mode='constant', cval=0)
     # augmented.append(shifted2.flatten())
     
-    # Горизонтальное отражение + шум
+    # 5. Горизонтальное отражение + шум
     flipped = np.fliplr(img)
     noise = np.random.normal(0, 0.05, flipped.shape)
     noisy = np.clip(flipped + noise, 0, 1)
