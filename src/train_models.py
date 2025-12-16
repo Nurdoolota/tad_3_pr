@@ -36,10 +36,10 @@ def main():
     nb.fit(X, y)
 
     # Сохранение моделей
-    os.makedirs('models', exist_ok=True)
-    joblib.dump(rf, 'models/rf_model.pkl')
-    joblib.dump(lr, 'models/lr_model.pkl')
-    joblib.dump(nb, 'models/nb_model.pkl')
+    os.makedirs('models_aug', exist_ok=True)
+    joblib.dump(rf, 'models_aug/rf_model.pkl')
+    joblib.dump(lr, 'models_aug/lr_model.pkl')
+    joblib.dump(nb, 'models_aug/nb_model.pkl')
     print('Models trained and saved to models/')
 
 if __name__ == '__main__':

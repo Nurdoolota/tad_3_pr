@@ -8,7 +8,6 @@ def main():
     parser.add_argument('output_path', help='Path to save combined dataset')
     args = parser.parse_args()
 
-    # Загрузка params.yaml (оставляем для совместимости, хотя sample_size теперь не используется)
     with open('params.yaml', 'r') as f:
         params = yaml.safe_load(f)
 

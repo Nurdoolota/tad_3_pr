@@ -9,20 +9,20 @@ stages:
       size: 11110040
     - path: src/augment_data.py
       hash: md5
-      md5: cbdee661c9cd5c8494c0bfdd9d30f149
-      size: 2780
+      md5: b04a7149c29e8deff514b466fe83c5dc
+      size: 3088
     outs:
     - path: data/augmented_only_train.csv
       hash: md5
-      md5: 2366d7f75b5c53f8a507b3eb82eaae76
-      size: 351225213
+      md5: f424df01bfbbd1497bc137cc0343490c
+      size: 55774388
   sample_data:
     cmd: python src/sample_data.py data/combined_train.csv
     deps:
     - path: data/augmented_only_train.csv
       hash: md5
-      md5: 2366d7f75b5c53f8a507b3eb82eaae76
-      size: 351225213
+      md5: f424df01bfbbd1497bc137cc0343490c
+      size: 55774388
     - path: data/raw/fashion-mnist_train.csv
       hash: md5
       md5: 976229da8a00a3ccf41b8009e4e48d77
@@ -37,5 +37,78 @@ stages:
     outs:
     - path: data/combined_train.csv
       hash: md5
-      md5: 9355224cb434af244abfc790347f8d75
-      size: 360674144
+      md5: cada55a6e6cde713a11a669c8a79ffb9
+      size: 66877473
+  train_models:
+    cmd: python src/train_models.py data/combined_train.csv models
+    deps:
+    - path: data/combined_train.csv
+      hash: md5
+      md5: cada55a6e6cde713a11a669c8a79ffb9
+      size: 66877473
+    - path: src/train_models.py
+      hash: md5
+      md5: 1374a154d2311b57a147662c6addebc7
+      size: 1481
+    params:
+      params.yaml:
+        logistic_regression:
+          C: 0.5
+        naive_bayes:
+          var_smoothing: 9e-10
+        random_forest:
+          n_estimators: 50
+          max_depth: 10
+    outs:
+    - path: models
+      hash: md5
+      md5: fec5b18a6482e892076323f55c5bdc10.dir
+      size: 9389223
+      nfiles: 3
+  train_models_aug:
+    cmd: python src/train_models.py data/augmented_only_train.csv models_aug
+    deps:
+    - path: data/augmented_only_train.csv
+      hash: md5
+      md5: f424df01bfbbd1497bc137cc0343490c
+      size: 55774388
+    - path: src/train_models.py
+      hash: md5
+      md5: 047af12df95cc53dcf1d31efc99d26e2
+      size: 1497
+    params:
+      params.yaml:
+        logistic_regression:
+          C: 0.5
+        naive_bayes:
+          var_smoothing: 9e-10
+        random_forest:
+          n_estimators: 50
+          max_depth: 10
+    outs:
+    - path: models_aug
+      hash: md5
+      md5: 8c4e9a7fb7b3624b7594d53e448ddf0f.dir
+      size: 9124839
+      nfiles: 3
+  evaluate_models_aug:
+    cmd: python src/evaluate_models.py metrics/eval_aug.json models_aug
+    deps:
+    - path: data/raw/fashion-mnist_test.csv
+      hash: md5
+      md5: 64ec16a6b73b3514634d529a71dd8306
+      size: 22176691
+    - path: models_aug
+      hash: md5
+      md5: 8c4e9a7fb7b3624b7594d53e448ddf0f.dir
+      size: 9124839
+      nfiles: 3
+    - path: src/evaluate_models.py
+      hash: md5
+      md5: 0e1bf0af77ec8b90ea5cb9c72c0fa47e
+      size: 2293
+    outs:
+    - path: metrics/eval_aug.json
+      hash: md5
+      md5: 317e05c1f82736eabf1a87a2a9246f64
+      size: 499

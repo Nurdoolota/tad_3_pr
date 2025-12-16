@@ -3,44 +3,41 @@ import numpy as np
 import argparse
 import os
 from scipy.ndimage import rotate, shift
-from sklearn.preprocessing import MinMaxScaler
 
 def apply_transformations(image_vector):
     """
-    Принимает вектор из 784 пикселей (нормализованных [0,1]),
-    возвращает 5 аугментированных векторов без NaN
+    Принимает вектор 784 пикселя (масштабированный в [0, 1]),
+    возвращает список из 5 аугментированных векторов без NaN и в диапазоне [0, 1].
     """
     img = image_vector.reshape(28, 28)
+    
     augmented = []
-
-    def safe_flatten(x):
-        x = np.nan_to_num(x, nan=0.0, posinf=0.0, neginf=0.0)
-        return x.flatten()
-
-    # # 1. Ротация +10°
-    # rotated1 = rotate(img, angle=10, reshape=False, mode='constant', cval=0)
-    # augmented.append(safe_flatten(rotated1))
-
-    # # 2. Ротация -10°
-    # rotated2 = rotate(img, angle=-10, reshape=False, mode='constant', cval=0)
-    # augmented.append(safe_flatten(rotated2))
-
-    # # 3. Сдвиг вверх-влево
-    # shifted1 = shift(img, shift=(-2, -2), mode='constant', cval=0)
-    # augmented.append(safe_flatten(shifted1))
-
-    # # 4. Сдвиг вниз-вправо
-    # shifted2 = shift(img, shift=(2, 2), mode='constant', cval=0)
-    # augmented.append(safe_flatten(shifted2))
-
+    
+    # 1. Ротация +10°
+    rot1 = rotate(img, angle=10, reshape=False, mode='constant', cval=0.0)
+    rot1 = np.nan_to_num(rot1, nan=0.0)
+    augmented.append(np.clip(rot1, 0.0, 1.0).flatten())
+    
+    # 2. Ротация -10°
+    rot2 = rotate(img, angle=-10, reshape=False, mode='constant', cval=0.0)
+    rot2 = np.nan_to_num(rot2, nan=0.0)
+    augmented.append(np.clip(rot2, 0.0, 1.0).flatten())
+    
+    # 3. Сдвиг вверх-влево (-2, -2)
+    shift1 = shift(img, shift=(-2, -2), mode='constant', cval=0.0)
+    augmented.append(np.clip(shift1, 0.0, 1.0).flatten())
+    
+    # 4. Сдвиг вниз-вправо (2, 2)
+    shift2 = shift(img, shift=(2, 2), mode='constant', cval=0.0)
+    augmented.append(np.clip(shift2, 0.0, 1.0).flatten())
+    
     # 5. Горизонтальное отражение + шум
     flipped = np.fliplr(img)
     noise = np.random.normal(0, 0.05, flipped.shape)
-    noisy = np.clip(flipped + noise, 0, 1)
-    augmented.append(safe_flatten(noisy))
-
+    noisy = np.clip(flipped + noise, 0.0, 1.0)
+    augmented.append(noisy.flatten())
+    
     return augmented
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -52,9 +49,8 @@ def main():
     labels = sampled_df['label'].values
     pixels = sampled_df.drop('label', axis=1).values.astype(np.float32)
 
-    # Нормализация в [0, 1]
-    scaler = MinMaxScaler()
-    pixels = scaler.fit_transform(pixels)
+    # Нормализация в [0, 1] (Fashion MNIST обычно в [0, 255], делим на 255)
+    pixels /= 255.0
 
     augmented_images = []
     augmented_labels = []
@@ -64,10 +60,15 @@ def main():
         augmented_images.extend(transforms)
         augmented_labels.extend([labels[i]] * len(transforms))
 
-    # DataFrame только с аугментированными данными
-    columns = [f'pixel{i}' for i in range(784)]
+    # Создание DataFrame
+    columns = sampled_df.columns[1:] 
     aug_df = pd.DataFrame(augmented_images, columns=columns)
     aug_df.insert(0, 'label', augmented_labels)
+
+    # Обратная денормализация в [0, 255] для совместимости с исходным форматом
+    for col in columns:
+        aug_df[col] *= 255.0
+        aug_df[col] = aug_df[col].round().astype(int)
 
     # Сохранение
     os.makedirs(os.path.dirname(args.output_path), exist_ok=True)
