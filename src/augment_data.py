@@ -7,32 +7,31 @@ from sklearn.preprocessing import MinMaxScaler
 
 def apply_transformations(image_vector):
     """Принимает вектор 784 пикселя, возвращает список из 5 аугментированных векторов"""
-    # Преобразуем в матрицу 28x28
     img = image_vector.reshape(28, 28)
     
     augmented = []
     
-    # 1. Ротация на +10 градусов
-    rotated1 = rotate(img, angle=10, reshape=False, mode='nearest')
-    augmented.append(rotated1.flatten())
+    # # Ротация +10°
+    # rotated1 = rotate(img, angle=10, reshape=False, mode='nearest')
+    # augmented.append(rotated1.flatten())
     
-    # # 2. Ротация на -10 градусов
+    # # Ротация -10°
     # rotated2 = rotate(img, angle=-10, reshape=False, mode='nearest')
     # augmented.append(rotated2.flatten())
     
-    # # 3. Сдвиг вверх-влево
+    # # Сдвиг вверх-влево
     # shifted1 = shift(img, shift=(-2, -2), mode='nearest')
     # augmented.append(shifted1.flatten())
     
-    # # 4. Сдвиг вниз-вправо
+    # # Сдвиг вниз-вправо
     # shifted2 = shift(img, shift=(2, 2), mode='nearest')
     # augmented.append(shifted2.flatten())
     
-    # # 5. Горизонтальное отражение + небольшой шум
-    # flipped = np.fliplr(img)
-    # noise = np.random.normal(0, 0.05, flipped.shape)
-    # noisy = np.clip(flipped + noise, 0, 1)
-    # augmented.append(noisy.flatten())
+    # Горизонтальное отражение + шум
+    flipped = np.fliplr(img)
+    noise = np.random.normal(0, 0.05, flipped.shape)
+    noisy = np.clip(flipped + noise, 0, 1)
+    augmented.append(noisy.flatten())
     
     return augmented
 
@@ -46,7 +45,7 @@ def main():
     labels = sampled_df['label'].values
     pixels = sampled_df.drop('label', axis=1).values.astype(np.float32)
 
-    # Нормализация пикселей в диапазон [0, 1] для корректной аугментации
+    # Нормализация в [0, 1]
     scaler = MinMaxScaler()
     pixels = scaler.fit_transform(pixels)
 
@@ -58,7 +57,7 @@ def main():
         augmented_images.extend(transforms)
         augmented_labels.extend([labels[i]] * len(transforms))
 
-    # Создание DataFrame только с аугментированными данными
+    # DataFrame только с аугментированными данными
     columns = [f'pixel{i}' for i in range(784)]
     aug_df = pd.DataFrame(augmented_images, columns=columns)
     aug_df.insert(0, 'label', augmented_labels)

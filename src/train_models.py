@@ -37,9 +37,9 @@ def main():
 
     # Сохранение моделей
     os.makedirs('models', exist_ok=True)
-    joblib.dump(rf, 'models/rf_model_aug.pkl')
-    joblib.dump(lr, 'models/lr_model_aug.pkl')
-    joblib.dump(nb, 'models/nb_model_aug.pkl')
+    joblib.dump(rf, 'models/rf_model.pkl')
+    joblib.dump(lr, 'models/lr_model.pkl')
+    joblib.dump(nb, 'models/nb_model.pkl')
     print('Models trained and saved to models/')
 
 if __name__ == '__main__':

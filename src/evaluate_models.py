@@ -25,9 +25,9 @@ def main():
     X_test = test_df.drop('label', axis=1)
 
     # Загрузка моделей
-    rf = joblib.load(os.path.join(args.models_dir, 'rf_model_aug.pkl'))
-    lr = joblib.load(os.path.join(args.models_dir, 'lr_model_aug.pkl'))
-    nb = joblib.load(os.path.join(args.models_dir, 'nb_model_aug.pkl'))
+    rf = joblib.load(os.path.join(args.models_dir, 'rf_model.pkl'))
+    lr = joblib.load(os.path.join(args.models_dir, 'lr_model.pkl'))
+    nb = joblib.load(os.path.join(args.models_dir, 'nb_model.pkl'))
 
     # Предсказания и метрики
     metrics = {

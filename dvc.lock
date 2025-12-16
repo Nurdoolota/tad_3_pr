@@ -66,3 +66,19 @@ stages:
       hash: md5
       md5: 3b3709ca5176347863efb57bffac7f13
       size: 497
+  augment_data:
+    cmd: python src/augment_data.py data/augmented_only_train.csv
+    deps:
+    - path: data/sampled_train.csv
+      hash: md5
+      md5: 2465d36076567e411d93056dce0e3c1d
+      size: 11110040
+    - path: src/augment_data.py
+      hash: md5
+      md5: b8ec419ac867ceb0554db94ef1119a57
+      size: 2830
+    outs:
+    - path: data/augmented_only_train.csv
+      hash: md5
+      md5: 2df51ce49b586aa864f47975620edd49
+      size: 47112355
